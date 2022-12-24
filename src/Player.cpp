@@ -3,16 +3,22 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
-Player::Player(const std::string& name) : name_(name), counter_(0) {}
+Player::Player(std::string  name) : name_(std::move(name)), counter_(0) {}
 
-void Player::SendMessage(std::shared_ptr<Player> other,
+void Player::SendMessage(const std::shared_ptr<Player>& other,
                          const std::string& message) {
     // Lock the mutex.
     std::lock_guard<std::mutex> lock(mutex_);
 
     // Increment the message counter.
     ++counter_;
+
+    // Check if the termination condition has been reached.
+    if (counter_ == 10) {
+        return;
+    }
 
     // Print the message being sent.
     std::cout << name_ << ": Sending message " << counter_ << ": " << message
@@ -33,7 +39,8 @@ void Player::ReceiveMessage(const std::string& message) {
     std::cout << name_ << ": Received message " << counter_ << ": " << message
               << std::endl;
 
+    auto self = shared_from_this();
     // Create a shared_ptr to this Player object and pass it to the sender.
-    sender_->SendMessage(std::shared_ptr<Player>(this, [](Player*) {}),
+    self->SendMessage(shared_from_this(),
                          message + " " + std::to_string(counter_));
 }

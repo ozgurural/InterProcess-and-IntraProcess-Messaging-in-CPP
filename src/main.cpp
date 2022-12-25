@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "Logger.h"
 #include "Player.h"
 
 // both players should run in the same process (strong requirement)
@@ -10,6 +11,8 @@ void same_process() {
     // Create two players.
     auto player1 = std::make_shared<Player>("Player 1");
     auto player2 = std::make_shared<Player>("Player 2");
+
+    LOG(INFO) << "Player 1 and Player 2 are created.";
 
     // Have player 1 send a message to player 2.
     player1->SendMessage(player2, "Hello, world!");

@@ -28,7 +28,7 @@ TEST(PlayerTest, TestConcurrentSendAndReceive) {
     std::thread t1([&]() { player1->SendMessage(player2, "Hello, World!"); });
 
     // Create a thread to receive the message from player 2.
-    std::thread t2([&]() { player2->ReceiveMessage("Hello, World!"); });
+    std::thread t2([&]() { player2->ReceiveMessage("Hello, World!", player1); });
 
     // Wait for the threads to finish.
     t1.join();

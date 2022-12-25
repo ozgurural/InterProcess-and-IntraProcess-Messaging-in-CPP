@@ -1,16 +1,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
-#include <cstdlib>
 #include <iostream>
 
 #include "Logger.h"
 #include "Player.h"
 
 // both players should run in the same process (strong requirement)
-void same_process() {
+void sameProcess() {
     // Create two players.
-    auto player1 = std::make_shared<Player>("Player 1");
-    auto player2 = std::make_shared<Player>("Player 2");
+    std::shared_ptr<Player> player1 = std::make_shared<Player>("Player 1");
+    std::shared_ptr<Player> player2 = std::make_shared<Player>("Player 2");
 
     LOG(INFO) << "Player 1 and Player 2 are created.";
 
@@ -19,7 +18,7 @@ void same_process() {
 }
 
 // have every player in a separate process (different PID).
-void seperate_process() {
+void separateProcess() {
     // Create a new process.
     pid_t pid = fork();
     if (pid == 0) {
@@ -34,12 +33,12 @@ void seperate_process() {
 }
 
 int main() {
-    same_process();
+    sameProcess();
 
-    // wait to keyboad input
+    // wait to keyboard input
     std::cin.get();
 
-    seperate_process();
+    separateProcess();
 
     return 0;
 }

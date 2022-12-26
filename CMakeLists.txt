@@ -18,12 +18,14 @@ include_directories(
 set(SOURCES
     src/Player.cpp
     src/Logger.cpp
+    src/PlayerManager.cpp
 )
 
 # Set the header files
 set(HEADERS
     include/Player.h
     include/Logger.h
+    include/PlayerManager.h
 )
 
 # Add the executable with the specified source and header files
@@ -37,6 +39,7 @@ find_package(GTest REQUIRED)
 set(TEST_SOURCES
     test/test_Player.cpp
     test/test_Logger.cpp
+    #test/test_PlayerManager.cpp
 )
 
 # Add the unit tests executable with the necessary source and header files
@@ -48,3 +51,4 @@ target_link_libraries(unit_tests ${GTEST_BOTH_LIBRARIES})
 # Add the unit tests to be run by CTest
 add_test(test_Player unit_tests)
 add_test(test_Logger unit_tests)
+#add_test(test_PlayerManager unit_tests)

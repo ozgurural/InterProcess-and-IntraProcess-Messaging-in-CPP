@@ -21,10 +21,9 @@ void Player::SendMessage(const std::shared_ptr<Player>& other,
         exit(0);
     }
 
-    // Print the message being sent.
-    std::cout << name_ << ": Sending message " << counter_ << ": " << message
-              << std::endl;
-
+    // Print the message being sent with logger
+    LOG(INFO) << name_ << ": Sending message " << counter_ << ": " << message;
+    
     // Receive the message and send a reply.
     auto self = shared_from_this();
     other->ReceiveMessage(message, self);
@@ -42,9 +41,8 @@ void Player::ReceiveMessage(const std::string& message,
     // Increment the message counter.
     ++counter_;
 
-    // Print the message being received.
-    std::cout << name_ << ": Received message " << counter_ << ": " << message
-              << std::endl;
+    // Print the message being received
+    LOG(INFO) << name_ << ": Received message " << counter_ << ": " << message;
 
     auto self = shared_from_this();
     // Create a shared_ptr to this Player object and pass it to the sender.

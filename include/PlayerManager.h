@@ -7,19 +7,16 @@
 #include "Logger.h"
 #include "Player.h"
 
-
 class PlayerManager {
 public:
-
-    void startMessaging(bool same_process, int message_count);
     void stopMessaging();
+    static void startSameProcessMessaging(int message_count);
+    static int startSeparateProcessMessaging(int message_count);
 
     // Destructor
     ~PlayerManager();
 
 private:
-    void sameProcess();
-    void separateProcess();
 
 };
 

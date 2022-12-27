@@ -37,7 +37,7 @@ find_package(GTest REQUIRED)
 
 # Set the source files for the unit tests
 set(TEST_SOURCES
-    test/test_Player.cpp
+    #test/test_Player.cpp
     test/test_Logger.cpp
     #test/test_PlayerManager.cpp
 )
@@ -49,6 +49,6 @@ add_executable(unit_tests ${TEST_SOURCES} ${HEADERS} ${SOURCES})
 target_link_libraries(unit_tests ${GTEST_BOTH_LIBRARIES})
 
 # Add the unit tests to be run by CTest
-add_test(test_Player unit_tests)
+#add_test(test_Player unit_tests)
 add_test(test_Logger unit_tests)
 #add_test(test_PlayerManager unit_tests)

@@ -76,35 +76,44 @@ void Player::SeparateProcessSendMessage(const std::string& message) {
     // time.
     sem_wait(&semaphore_);
 
-    // Increment the message counter.
-    ++counter_;
-
-    // Check if the termination condition has been reached.
-    if (counter_ == message_count_ + 1) {
-        terminate_ = true;
-        exit(0);
-    }
-
-    // Read the message from the pipe.
-    char buffer[1024];
-    int bytes_read = read(pipe_fd_, buffer, sizeof(buffer) - 1);
-    buffer[bytes_read] = '\0';
-
+    // Read the message from the pipe one character at a time.
     std::string received_message;
-    if (bytes_read == 0) {
-        // Handle end of file
-    } else {
-        received_message = buffer;
+    char c;
+    while (read(pipe_fd_, &c, 1) > 0 && c != '\0') {
+        received_message += c;
     }
 
-    // Print the message being sent with logger
-    LOG(INFO) << name_ << "(Process Id: " << getpid() << "): Sending message "
-              << counter_ << ": " << message;
+    if (received_message.empty() && counter_ != 0) {
+        // Handle end of file
+        // LOG(INFO) << "received_message is empty " << counter_;
+    } else {
+        // Increment the message counter.
+        ++counter_;
 
-    // Write the message to the pipe.
-    std::string message_to_send = message + received_message;
-    message_to_send += '\0';  // null-terminate the string
-    write(pipe_fd_, message_to_send.c_str(), message_to_send.size());
+        // Check if the termination condition has been reached.
+        if (counter_ == message_count_ + 1) {
+            terminate_ = true;
+            exit(0);
+        }
+
+        // Write the message to the pipe.
+        std::string message_to_send = message + received_message;
+
+        message_to_send.append(" " + std::to_string(counter_));
+
+        // Print the message being sent with logger
+        LOG(INFO) << name_ << "(Process Id: " << getpid()
+                  << "): Sending message " << counter_ << ": "
+                  << message_to_send;
+
+        write(pipe_fd_, message_to_send.c_str(), message_to_send.size() + 1);
+
+        // clear the received message
+        received_message.clear();
+
+        // Clear the message to send
+        message_to_send.clear();
+    }
 
     // Release the semaphore.
     sem_post(&semaphore_);
@@ -115,41 +124,49 @@ void Player::SeparateProcessReceiveMessage() {
         LOG(INFO) << "Pipe is not initialized";
         return;
     }
-
+    LOG(INFO) << "SeparateProcessReceiveMessage";
     sem_wait(&semaphore_);
-
     // Read the message from the pipe one character at a time.
     std::string received_message;
     char c;
     while (read(pipe_fd_, &c, 1) > 0 && c != '\0') {
         received_message += c;
+        // LOG(INFO) << "received_message: " << received_message;
     }
-
+    LOG(INFO) << "the received_message: " << received_message;
     if (received_message.empty()) {
         // Handle end of file
+        LOG(INFO) << "received_message is empty";
     } else {
-
         // Increment the message counter.
         ++counter_;
-        
+
         // Print the message being received
         LOG(INFO) << name_ << "(Process Id: " << getpid()
                   << "): Received message " << counter_ << ": "
-                  << received_message;
-
-
+                  << received_message + '\0';
 
         // Check if the termination condition has been reached.
         if (counter_ == message_count_ + 1) {
+            LOG(INFO) << "Terminating" << counter_ << " " << message_count_;
             terminate_ = true;
             exit(0);
         }
 
         received_message.append(" " + std::to_string(counter_));
 
+        LOG(INFO) << received_message;
+
         // Write the received message back to the pipe.
-        write(pipe_fd_, received_message.c_str(), received_message.size());
+        write(pipe_fd_, received_message.c_str(), received_message.size() + 1);
+
+        // Clear the received message
+        received_message.clear();
+
+        // Clear the buffer
+        memset(&c, 0, sizeof(c));
     }
 
+    // Release the semaphore.
     sem_post(&semaphore_);
 }

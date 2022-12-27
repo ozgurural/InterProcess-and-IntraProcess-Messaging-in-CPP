@@ -11,7 +11,7 @@ class PlayerManager {
 public:
     void stopMessaging();
     static void startSameProcessMessaging(int message_count);
-    static int startSeparateProcessMessaging(int message_count);
+    static void startSeparateProcessMessaging(int message_count);
 
     // Destructor
     ~PlayerManager();

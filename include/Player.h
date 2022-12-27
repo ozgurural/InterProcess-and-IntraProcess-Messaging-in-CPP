@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <atomic>
+#include <cstring>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -54,7 +55,7 @@ private:
     std::atomic<bool> terminate_;
 
     // A semaphore to ensure only one process can access the pipe at a time.
-    sem_t semaphore_;
+    sem_t semaphore_{};
 };
 
 #endif  // PLAYER_H

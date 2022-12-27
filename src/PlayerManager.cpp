@@ -21,21 +21,21 @@ void PlayerManager::startSameProcessMessaging(int message_count) {
 }
 
 // have every player in a separate process (different PID).
-int PlayerManager::startSeparateProcessMessaging(int message_count) {
+void PlayerManager::startSeparateProcessMessaging(int message_count) {
     LOG(INFO) << "Each player is running in a separate process.";
 
     // Create a pipe for communication between the two processes.
     int pipe_fd[2];
     if (pipe(pipe_fd) == -1) {
         perror("Error creating pipe");
-        return 1;
+        return;
     }
 
     // Fork the first process.
     pid_t pid = fork();
     if (pid == -1) {
         perror("Error forking process");
-        return 1;
+        return;
     }
 
     if (pid == 0) {
@@ -67,7 +67,6 @@ int PlayerManager::startSeparateProcessMessaging(int message_count) {
             player->SeparateProcessSendMessage("Hello, world!");
         }
     }
-    return 0;
 }
 
 void PlayerManager::stopMessaging() {

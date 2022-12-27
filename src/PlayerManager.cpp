@@ -20,7 +20,6 @@ void PlayerManager::startSameProcessMessaging(int message_count) {
     player1->SameProcessSendMessage(player2, "Hello, world!");
 }
 
-
 // have every player in a separate process (different PID).
 int PlayerManager::startSeparateProcessMessaging(int message_count) {
     LOG(INFO) << "Each player is running in a separate process.";
@@ -48,9 +47,6 @@ int PlayerManager::startSeparateProcessMessaging(int message_count) {
         // descriptor.
         std::shared_ptr<Player> player =
             std::make_shared<Player>("Player 1", message_count, pipe_fd[0]);
-
-        // Send the first message to the other player.
-        player->SeparateProcessSendMessage("Hello, world!");
 
         // Wait until the other player has sent back message_count messages.
         while (!player->ShouldTerminate()) {

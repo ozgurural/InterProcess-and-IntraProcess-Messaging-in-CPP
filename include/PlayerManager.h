@@ -17,7 +17,6 @@ public:
     ~PlayerManager();
 
 private:
-
 };
 
 #endif  // PLAYER_MANAGER_H

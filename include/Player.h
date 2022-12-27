@@ -6,6 +6,11 @@
 #include <mutex>
 #include <string>
 
+#include <semaphore.h>  // for sem_t
+#include <unistd.h>     // for pipe, fork
+#include <memory>
+#include <utility>
+
 #include "Logger.h"
 
 class Player : public std::enable_shared_from_this<Player> {
@@ -15,15 +20,15 @@ public:
 
     // Sends a message to another player.
     void SameProcessSendMessage(const std::shared_ptr<Player>& other,
-                     const std::string& message);
+                                const std::string& message);
 
     // Receives a message from another player.
     void SameProcessReceiveMessage(const std::string& message,
-                        const std::shared_ptr<Player>& sender);
+                                   const std::shared_ptr<Player>& sender);
 
     // Sends a message to another player in a separate process.
     void SeparateProcessSendMessage(const std::string& message);
-    
+
     // Receives a message from another player in a separate process.
     void SeparateProcessReceiveMessage();
 
@@ -47,6 +52,9 @@ private:
 
     // A flag to signal that the program should terminate.
     std::atomic<bool> terminate_;
+
+    // A semaphore to ensure only one process can access the pipe at a time.
+    sem_t semaphore_;
 };
 
 #endif  // PLAYER_H

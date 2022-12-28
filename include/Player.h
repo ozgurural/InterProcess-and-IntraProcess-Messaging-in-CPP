@@ -17,7 +17,10 @@
 class Player : public std::enable_shared_from_this<Player> {
 public:
     // Constructs a new player with the given name.
-    explicit Player(std::string name, int message_count_, int pipe_fd);
+    explicit Player(std::string name,
+                    int message_count,
+                    int pipe_fd1,
+                    int pipe_fd2);
 
     // Sends a message to another player.
     void SameProcessSendMessage(const std::shared_ptr<Player>& other,
@@ -49,7 +52,8 @@ private:
     std::recursive_mutex mutex_;
 
     // The file descriptor for the pipe.
-    int pipe_fd_;
+    int pipe_fd1_;
+    int pipe_fd2_;
 
     // A flag to signal that the program should terminate.
     std::atomic<bool> terminate_;

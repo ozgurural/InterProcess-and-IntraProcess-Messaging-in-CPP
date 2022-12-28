@@ -1,10 +1,11 @@
 #include "Player.h"
 
-Player::Player(std::string name, int message_count, int pipe_fd)
+Player::Player(std::string name, int message_count, int pipe_fd1, int pipe_fd2)
     : name_(std::move(name)),
       counter_(0),
       message_count_(message_count),
-      pipe_fd_(pipe_fd) {
+      pipe_fd1_(pipe_fd1),
+      pipe_fd2_(pipe_fd2) {
     // Initialize the semaphore with a value of 1.
     sem_init(&semaphore_, 0, 1);
 }
@@ -30,13 +31,6 @@ void Player::SameProcessSendMessage(const std::shared_ptr<Player>& other,
     // Receive the message and send a reply.
     auto self = shared_from_this();
     other->SameProcessReceiveMessage(message, self);
-
-    if (pipe_fd_ == -1) {
-        LOG(INFO) << "Pipe is not initialized";
-        return;
-    }
-    // Write the message to the pipe.
-    write(pipe_fd_, message.c_str(), message.size());
 }
 
 bool Player::ShouldTerminate() const {
@@ -67,7 +61,7 @@ void Player::SameProcessReceiveMessage(const std::string& message,
 }
 
 void Player::SeparateProcessSendMessage(const std::string& message) {
-    if (pipe_fd_ == -1) {
+    if (pipe_fd1_ == -1 || pipe_fd2_ == -1) {
         LOG(INFO) << "Pipe is not initialized";
         return;
     }
@@ -76,10 +70,16 @@ void Player::SeparateProcessSendMessage(const std::string& message) {
     // time.
     sem_wait(&semaphore_);
 
+    // Check if the termination condition has been reached.
+    if (counter_ == message_count_ + 1) {
+        terminate_ = true;
+        exit(0);
+    }
+
     // Read the message from the pipe one character at a time.
     std::string received_message;
     char c;
-    while (read(pipe_fd_, &c, 1) > 0 && c != '\0') {
+    while (read(pipe_fd2_, &c, 1) > 0 && c != '\0') {
         received_message += c;
     }
 
@@ -89,12 +89,6 @@ void Player::SeparateProcessSendMessage(const std::string& message) {
     } else {
         // Increment the message counter.
         ++counter_;
-
-        // Check if the termination condition has been reached.
-        if (counter_ == message_count_ + 1) {
-            terminate_ = true;
-            exit(0);
-        }
 
         // Write the message to the pipe.
         std::string message_to_send = message + received_message;
@@ -106,7 +100,7 @@ void Player::SeparateProcessSendMessage(const std::string& message) {
                   << "): Sending message " << counter_ << ": "
                   << message_to_send;
 
-        write(pipe_fd_, message_to_send.c_str(), message_to_send.size() + 1);
+        write(pipe_fd1_, message_to_send.c_str(), message_to_send.size() + 1);
 
         // clear the received message
         received_message.clear();
@@ -120,7 +114,7 @@ void Player::SeparateProcessSendMessage(const std::string& message) {
 }
 
 void Player::SeparateProcessReceiveMessage() {
-    if (pipe_fd_ == -1) {
+    if (pipe_fd1_ == -1 || pipe_fd2_ == -1) {
         LOG(INFO) << "Pipe is not initialized";
         return;
     }
@@ -129,7 +123,7 @@ void Player::SeparateProcessReceiveMessage() {
     // Read the message from the pipe one character at a time.
     std::string received_message;
     char c;
-    while (read(pipe_fd_, &c, 1) > 0 && c != '\0') {
+    while (read(pipe_fd1_, &c, 1) > 0 && c != '\0') {
         received_message += c;
         // LOG(INFO) << "received_message: " << received_message;
     }
@@ -158,7 +152,7 @@ void Player::SeparateProcessReceiveMessage() {
         LOG(INFO) << received_message;
 
         // Write the received message back to the pipe.
-        write(pipe_fd_, received_message.c_str(), received_message.size() + 1);
+        write(pipe_fd2_, received_message.c_str(), received_message.size() + 1);
 
         // Clear the received message
         received_message.clear();

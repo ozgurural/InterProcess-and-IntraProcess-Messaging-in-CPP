@@ -3,9 +3,9 @@
 ### Project Description
 This project is a simple implementation of a messaging system between two players. The players can communicate with each other in two different ways:
 
-Same process messaging: In this type of messaging, both players reside in the same process.
+- Same process messaging: In this type of messaging, both players reside in the same process.
 
-Separate process messaging: In this type of messaging, both players reside in separate processes and communicate using pipes.
+- Separate process messaging: In this type of messaging, both players reside in separate processes and communicate using pipes.
 
 The messages exchanged between the players are simple string messages. The players send and receive messages in an iterative manner until a predefined message count is reached.
 

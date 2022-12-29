@@ -1,10 +1,5 @@
 #include "PlayerManager.h"
 
-PlayerManager::~PlayerManager() {
-    // Clean up resources and stop any threads
-    LOG(INFO) << "Player manager is destroyed.";
-}
-
 // both players should run in the same process (same PID).
 void PlayerManager::startSameProcessMessaging(int message_count) {
     LOG(INFO) << "Both players are running in the same process.";

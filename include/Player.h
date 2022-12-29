@@ -1,16 +1,14 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <semaphore.h>  // for sem_t
+#include <unistd.h>     // for pipe, fork
 #include <atomic>
+#include <condition_variable>
 #include <cstring>
 #include <memory>
 #include <mutex>
 #include <string>
-
-#include <semaphore.h>  // for sem_t
-#include <unistd.h>     // for pipe, fork
-#include <condition_variable>
-#include <memory>
 #include <thread>
 #include <utility>
 

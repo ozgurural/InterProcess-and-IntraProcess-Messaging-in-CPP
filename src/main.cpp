@@ -7,8 +7,12 @@ int main() {
     // Create an object of type TaskManager
     PlayerManager player_manager;
     int message_count = 10;
-    player_manager.startSeparateProcessMessaging(message_count);
-    // player_manager.startSameProcessMessaging(message_count);
-    std::cin.get();
+    LOG(INFO) << "Starting same process messaging";
+    player_manager.startSameProcessMessaging(message_count);
+
+    LOG(INFO) << "---------------------------------";
+    LOG(INFO) << "Starting separate process messaging";
+    PlayerManager ipc_player_manager;
+    ipc_player_manager.startSeparateProcessMessaging(message_count);
     return 0;
 }

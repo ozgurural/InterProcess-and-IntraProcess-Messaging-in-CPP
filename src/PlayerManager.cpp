@@ -10,9 +10,9 @@ void PlayerManager::startSameProcessMessaging(int message_count) {
     LOG(INFO) << "Both players are running in the same process.";
     // Create two players.
     std::shared_ptr<Player> player1 =
-        std::make_shared<Player>("Player 1", message_count, -1, -1);
+        std::make_shared<Player>("Player 1", message_count, -1, -1, false);
     std::shared_ptr<Player> player2 =
-        std::make_shared<Player>("Player 2", message_count, -1, -1);
+        std::make_shared<Player>("Player 2", message_count, -1, -1, false);
 
     LOG(INFO) << "Player 1 and Player 2 are created.";
 
@@ -20,7 +20,6 @@ void PlayerManager::startSameProcessMessaging(int message_count) {
     player1->SameProcessSendMessage(player2, "Hello, world!");
 }
 
-// have every player in a separate process (different PID).
 void PlayerManager::startSeparateProcessMessaging(int message_count) {
     LOG(INFO) << "Each player is running in a separate process.";
 
@@ -41,33 +40,31 @@ void PlayerManager::startSeparateProcessMessaging(int message_count) {
     if (pid == 0) {
         // This is the child process.
         // Close the unwanted ends of the pipes.
+        close(pipe_fd_1[0]);  // close the read end of the pipe
+        close(pipe_fd_2[1]);  // close the write end of the pipe
+
+        // Create a Player object with the read end of the first pipe and the
+        // write end of the second pipe as the pipe file descriptors.
+        std::atomic_bool send_state = {true};
+        std::unique_ptr<Player> player1 = std::make_unique<Player>(
+            "Player 1", message_count, pipe_fd_2[0], pipe_fd_1[1], send_state);
+
+        // Wait until the other player has sent back message_count messages.
+        player1->PipeCommunication();
+    } else {
+        // This is the parent process.
+        // Close the unwanted ends of the pipes.
         close(pipe_fd_1[1]);  // close the write end of the pipe
         close(pipe_fd_2[0]);  // close the read end of the pipe
 
         // Create a Player object with the read end of the first pipe and the
         // write end of the second pipe as the pipe file descriptors.
-        std::shared_ptr<Player> player = std::make_shared<Player>(
-            "Player 1", message_count, pipe_fd_1[0], pipe_fd_2[1]);
+        std::atomic_bool send_state = {false};
+        std::unique_ptr<Player> player2 = std::make_unique<Player>(
+            "Player 2", message_count, pipe_fd_1[0], pipe_fd_2[1], send_state);
 
         // Wait until the other player has sent back message_count messages.
-        while (!player->ShouldTerminate()) {
-            player->SeparateProcessReceiveMessage();
-        }
-    } else {
-        // This is the parent process.
-        // Close the read end of the pipe.
-        close(pipe_fd_1[0]);  // close the read end of the pipe
-        close(pipe_fd_2[1]);  // close the write end of the pipe
-
-        // Create a Player object with the write end of the pipe as the pipe
-        // file descriptor.
-        std::shared_ptr<Player> player = std::make_shared<Player>(
-            "Player 2", message_count, pipe_fd_1[1], pipe_fd_2[0]);
-
-        // Wait until the other player has sent back message_count messages.
-        while (!player->ShouldTerminate()) {
-            player->SeparateProcessSendMessage("Hello, world!");
-        }
+        player2->PipeCommunication();
     }
 }
 

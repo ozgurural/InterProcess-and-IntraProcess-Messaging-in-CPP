@@ -3,6 +3,7 @@
 
 #include <sys/wait.h>
 #include <unistd.h>
+#include <atomic>
 
 #include "Logger.h"
 #include "Player.h"

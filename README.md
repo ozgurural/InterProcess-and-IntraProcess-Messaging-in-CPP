@@ -1,4 +1,3 @@
-# 360T - Technical challenge C++ position
 
 ### Project Description
 This project is a simple implementation of a messaging system between two players. The players can communicate with each other in two different ways:
@@ -38,9 +37,9 @@ This class represents a player in the messaging system. It has the following res
 #### PlayerManager
 This class is responsible for managing the players and coordinating their communication. It has the following responsibilities:
 
-- Implement methods for starting same process messaging (startSameProcessMessaging) and separate process messaging (startSeparateProcessMessaging).
-- Create instances of Player objects and pass them to the above mentioned methods for starting messaging.
-- Create pipes and processes for seperate process messaging.
+- Implement methods for starting same-process messaging (startSameProcessMessaging) and separate-process messaging (startSeparateProcessMessaging).
+- Create instances of Player objects and pass them to the above-mentioned methods for starting messaging.
+- Create pipes and processes for separate process messaging.
 
 ### File Descriptions
 
